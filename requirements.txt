@@ -10,3 +10,5 @@ numpy>=1.26.0
 requests>=2.31.0
 pytest>=8.0.0
 httpx>=0.27.0
+onnx>=1.15.0
+onnxscript>=0.1.0
