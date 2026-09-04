@@ -2,7 +2,6 @@ import os
 import json
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
 import xgboost as xgb
 import optuna
 import numpy as np
@@ -19,8 +18,10 @@ class SequenceDataset(Dataset):
     def __init__(self, seqs, targets):
         self.seqs = torch.tensor(seqs, dtype=torch.float32)
         self.targets = torch.tensor(targets, dtype=torch.float32)
+
     def __len__(self):
         return len(self.seqs)
+
     def __getitem__(self, idx):
         return self.seqs[idx], self.targets[idx]
 
@@ -113,7 +114,15 @@ def main():
         'lstm_momentum_away': np.roll(momentum_scores, 1)
     })
     
-    xgb_model = xgb.XGBRegressor(objective='count:poisson', n_estimators=30, max_depth=3, learning_rate=0.05)
+    # === CÓDIGO CORREGIDO (sin sklearn) ===
+    xgb_model = xgb.XGBRegressor(
+        objective='count:poisson',
+        n_estimators=30,
+        max_depth=3,
+        learning_rate=0.05,
+        tree_method='hist',
+        # device='cuda'  # descomenta si tienes GPU
+    )
     xgb_model.fit(X, targets)
 
     xgb_path = os.path.join(MODEL_DIR, "xgboost_poisson.json")
