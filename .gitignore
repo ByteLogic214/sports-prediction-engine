@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Cache de Python y Pytest
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Archivos de entorno y credenciales
+.env
+*.pem
+
+# Modelos binarios locales grandes (se manejan vía artefactos/GitHub Actions)
+# Descomentar si no deseas subir los pesos al repositorio:
+# saved_models/*.pt
+# saved_models/*.onnx
