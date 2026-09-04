@@ -1,10 +1,3 @@
-
----
-
-### Archivo 5: `main.py`
-> **Ruta en GitHub:** `main.py`
-
-```python
 import os
 import requests
 import numpy as np
@@ -116,7 +109,15 @@ def startup_event():
             print(f"[!] Error cargando LSTM: {e}")
     lstm_model.eval()
 
-    xgb_model = xgb.XGBRegressor()
+    # === CÓDIGO CORREGIDO (sin sklearn) ===
+    xgb_model = xgb.XGBRegressor(
+        objective='count:poisson',
+        n_estimators=30,
+        max_depth=3,
+        learning_rate=0.05,
+        tree_method='hist',
+        # device='cuda'  # descomenta si tienes GPU
+    )
     xgb_path = os.path.join(MODEL_DIR, "xgboost_poisson.json")
     if os.path.exists(xgb_path):
         try:
@@ -205,4 +206,4 @@ def predict_match(payload: MatchRequest):
             "draw": calculate_ev(p_draw, payload.odds_draw),
             "away": calculate_ev(p_away, payload.odds_away)
         }
-    }
+        }
