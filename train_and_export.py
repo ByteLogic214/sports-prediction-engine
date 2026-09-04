@@ -84,16 +84,23 @@ def main():
     best_hidden = study_lstm.best_params['hidden_dim']
     lstm_model = DynamicMomentumLSTM(input_dim=4, hidden_dim=best_hidden)
     
+    # 1. Exportar Modelo PyTorch Nativo
     pt_path = os.path.join(MODEL_DIR, "lstm_momentum.pt")
-    onnx_path = os.path.join(MODEL_DIR, "lstm_momentum.onnx")
     torch.save(lstm_model.state_dict(), pt_path)
-    
-    dummy_input = torch.randn(1, 5, 4, dtype=torch.float32)
-    torch.onnx.export(
-        lstm_model, dummy_input, onnx_path,
-        input_names=['sequence_input'], output_names=['momentum_score'],
-        dynamic_axes={'sequence_input': {0: 'batch_size'}, 'momentum_score': {0: 'batch_size'}}
-    )
+    print(f"[✓] Modelo PyTorch guardado en {pt_path}")
+
+    # 2. Intentar Exportación ONNX Opcional
+    try:
+        onnx_path = os.path.join(MODEL_DIR, "lstm_momentum.onnx")
+        dummy_input = torch.randn(1, 5, 4, dtype=torch.float32)
+        torch.onnx.export(
+            lstm_model, dummy_input, onnx_path,
+            input_names=['sequence_input'], output_names=['momentum_score'],
+            dynamic_axes={'sequence_input': {0: 'batch_size'}, 'momentum_score': {0: 'batch_size'}}
+        )
+        print(f"[✓] Exportación ONNX completada en {onnx_path}")
+    except Exception as e:
+        print(f"[!] Omitiendo exportación ONNX en este entorno ({e}). La API continuará usando .pt")
 
     print("[2/3] Generando embeddings y optimizando XGBoost...")
     with torch.no_grad():
@@ -116,7 +123,7 @@ def main():
     with open(os.path.join(MODEL_DIR, "metadata.json"), "w") as f:
         json.dump(meta, f, indent=2)
 
-    print(f"[3/3] ¡Modelos guardados exitosamente en ./{MODEL_DIR}/!")
+    print(f"[3/3] ¡Modelos procesados y guardados exitosamente en ./{MODEL_DIR}/!")
 
 if __name__ == "__main__":
     main()
